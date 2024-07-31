@@ -27,7 +27,7 @@ sys.path.append(BASE_DIR)
 from scripts.utils.mics import import_func, weights_init, zip_res
 from scripts.utils.av2_eval import write_output_file
 from scripts.network.models.basic import cal_pose0to1
-from scripts.network.official_metric import OfficialMetrics, evaluate_leaderboard, evaluate_leaderboard_v2
+from scripts.network.official_metric import OfficialMetrics, evaluate_leaderboard, evaluate_leaderboard_v2, evaluate_ssf
 
 # debugging tools
 # import faulthandler
@@ -142,7 +142,7 @@ class ModelWrapper(LightningModule):
                 loss_logger[key] += res_loss[key]
 
         self.log("trainer/loss", total_loss/batch_sizes, sync_dist=True, batch_size=self.batch_size)
-        if self.add_seloss is not None:
+        if self.add_seloss is not None and self.cfg_loss_name in ['seflowLoss']:
             for key in loss_logger:
                 self.log(f"trainer/{key}", loss_logger[key]/batch_sizes, sync_dist=True, batch_size=self.batch_size)
         self.model.timer[5].stop()
@@ -164,8 +164,9 @@ class ModelWrapper(LightningModule):
                                            batch['flow_is_valid'][batch_id][valid_from_pc2res], batch['flow_category_indices'][batch_id][valid_from_pc2res])
                 v2_dict = evaluate_leaderboard_v2(final_flow_, pose_flow, batch['pc0'][batch_id][valid_from_pc2res], gt_flow[valid_from_pc2res], \
                                         batch['flow_is_valid'][batch_id][valid_from_pc2res], batch['flow_category_indices'][batch_id][valid_from_pc2res])
-                
-                self.metrics.step(v1_dict, v2_dict)
+                ssf_dict = evaluate_ssf(final_flow_, pose_flow, batch['pc0'][batch_id][valid_from_pc2res], gt_flow[valid_from_pc2res], \
+                                        batch['flow_is_valid'][batch_id][valid_from_pc2res], batch['flow_category_indices'][batch_id][valid_from_pc2res])
+                self.metrics.step(v1_dict, v2_dict, ssf_dict)
         else:
             pass
 
@@ -242,8 +243,9 @@ class ModelWrapper(LightningModule):
                                        batch['flow_category_indices'][eval_mask])
             v2_dict = evaluate_leaderboard_v2(final_flow[eval_mask], pose_flow[eval_mask], pc0[eval_mask], \
                                     gt_flow[eval_mask], batch['flow_is_valid'][eval_mask], batch['flow_category_indices'][eval_mask])
-            
-            self.metrics.step(v1_dict, v2_dict)
+            ssf_dict = evaluate_ssf(final_flow[eval_mask], pose_flow[eval_mask], pc0[eval_mask], \
+                                    gt_flow[eval_mask], batch['flow_is_valid'][eval_mask], batch['flow_category_indices'][eval_mask])
+            self.metrics.step(v1_dict, v2_dict, ssf_dict)
         
         # NOTE (Qingwen): Since val and test, we will force set batch_size = 1 
         if self.save_res or self.av2_mode == 'test': # test must save data to submit in the online leaderboard.    
