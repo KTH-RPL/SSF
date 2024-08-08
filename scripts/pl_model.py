@@ -28,6 +28,7 @@ from scripts.utils.mics import import_func, weights_init, zip_res
 from scripts.utils.av2_eval import write_output_file
 from scripts.network.models.basic import cal_pose0to1
 from scripts.network.official_metric import OfficialMetrics, evaluate_leaderboard, evaluate_leaderboard_v2, evaluate_ssf
+import pickle
 
 # debugging tools
 # import faulthandler
@@ -211,12 +212,15 @@ class ModelWrapper(LightningModule):
         
         self.metrics.print()
 
-        self.metrics = OfficialMetrics()
-
         if self.save_res:
+            # Save the dictionaries to a pickle file
+            with open(str(self.save_res_path)+'.pkl', 'wb') as f:
+                pickle.dump((self.metrics.epe_3way, self.metrics.bucketed, self.metrics.epe_ssf), f)
             print(f"We already write the flow_est into the dataset, please run following commend to visualize the flow. Copy and paste it to your terminal:")
             print(f"python tools/scene_flow.py --flow_mode '{self.vis_name}' --data_dir {self.dataset_path}")
             print(f"Enjoy! ^v^ ------ \n")
+
+        self.metrics = OfficialMetrics()
         
     def eval_only_step_(self, batch, res_dict):
         eval_mask = batch['eval_mask'].squeeze()
