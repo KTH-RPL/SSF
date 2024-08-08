@@ -283,7 +283,7 @@ class OfficialMetrics:
             )
         
         if ssf_dict is not None:
-            print("ssf_dict is not None")
+            # print("ssf_dict is not None")
             for item_ in ssf_dict:
                 self.distanceMatrix.accumulate_value(
                     item_.name,
