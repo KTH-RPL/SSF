@@ -21,6 +21,7 @@ import open3d as o3d
 import json, os, sys, time
 from typing import List, Callable
 from functools import partial
+import numpy as np
 
 def hex_to_rgb(hex_color):
     hex_color = hex_color.lstrip("#")
@@ -157,6 +158,102 @@ class MyVisualizer:
             f.write(vis.get_view_status())
         vis.capture_screen_image(png_file)
         print(f"ScreenShot saved to: {png_file}, Please check it.")
+
+def create_bev_square(size=409.6, color=[68/255,114/255,196/255]):
+    # Create the vertices of the square
+    half_size = size / 2.0
+    vertices = np.array([
+        [-half_size, -half_size, 0],
+        [half_size, -half_size, 0],
+        [half_size, half_size, 0],
+        [-half_size, half_size, 0]
+    ])
+    
+    # Define the square as a LineSet for visualization
+    lines = [[0, 1], [1, 2], [2, 3], [3, 0]]
+    colors = [color for _ in lines]  
+
+    line_set = o3d.geometry.LineSet(
+        points=o3d.utility.Vector3dVector(vertices),
+        lines=o3d.utility.Vector2iVector(lines)
+    )
+    line_set.colors = o3d.utility.Vector3dVector(colors)
+    
+    return line_set
+
+class MyMultiVisualizer(MyVisualizer):
+    def __init__(self, view_file=None, flow_mode=['flow'], screen_width=2500, screen_height = 1375):
+        self.params = None
+        self.view_file = view_file
+        self.block_vis = True
+        self.play_crun = False
+        self.reset_bounding_box = True
+        self.playback_direction = 1 # 1:forward, -1:backward
+
+        self.vis = []
+        self.o3d_vctrl = []
+        
+        # Define width and height for each window
+        window_width = screen_width // 2
+        window_height = screen_height // 2
+        # Define positions for the four windows
+        epsilon = 150
+        positions = [
+            (0, 0),  # Top-left
+            (screen_width - window_width + epsilon, 0),  # Top-right
+            (0, screen_height - window_height + epsilon),  # Bottom-left
+            (screen_width - window_width + epsilon, screen_height - window_height + epsilon)  # Bottom-right
+        ]
+
+        for i, mode in enumerate(flow_mode):
+            window_title = f"view {'ground truth flow' if mode == 'flow' else f'{mode} flow'}, `SPACE` start/stop"
+            v = o3d.visualization.VisualizerWithKeyCallback()
+            v.create_window(window_name=window_title, width=window_width, height=window_height, left=positions[i%len(positions)][0], top=positions[i%len(positions)][1])
+            self.o3d_vctrl.append(ViewControl(v.get_view_control(), view_file=view_file))
+            self.vis.append(v)
+        
+        self._register_key_callback(["Ā", "Q", "\x1b"], self._quit)
+        self._register_key_callback([" "], self._start_stop)
+        self._register_key_callback(["D"], self._next_frame)
+        self._register_key_callback(["A"], self._prev_frame)
+        print(
+            f"\n{window_title.capitalize()} initialized. Press:\n"
+            "\t[SPACE] to pause/start\n"
+            "\t  [ESC] to exit\n"
+            "\t    [D] to step next\n"
+            "\t    [A] to step previous\n"
+        )
+
+    def update(self, assets_list: List, clear: bool = True):
+        if clear:
+            [v.clear_geometries() for v in self.vis]
+
+        for i, assets in enumerate(assets_list):
+            [self.vis[i].add_geometry(asset, reset_bounding_box=False) for asset in assets]
+            self.vis[i].update_geometry(assets[-1])
+
+        if self.reset_bounding_box:
+            [v.reset_view_point(True) for v in self.vis]
+            if self.view_file is not None:
+                [o.read_viewTfile(self.view_file) for o in self.o3d_vctrl]
+            self.reset_bounding_box = False
+
+        [v.update_renderer() for v in self.vis]
+        while self.block_vis:
+            [v.poll_events() for v in self.vis]
+            if self.play_crun:
+                break
+        self.block_vis = not self.block_vis
+    
+    def _register_key_callback(self, keys: List, callback: Callable):
+        for key in keys:
+            [v.register_key_callback(ord(str(key)), partial(callback)) for v in self.vis]
+    def _next_frame(self, vis):
+        self.block_vis = not self.block_vis
+        self.playback_direction = 1
+    def _prev_frame(self, vis):
+        self.block_vis = not self.block_vis
+        self.playback_direction = -1
 
 if __name__ == "__main__":
     json_content = """{
