@@ -1,3 +1,8 @@
+"""
+Adapted from SST (https://github.com/tusen-ai/SST)
+Licensed under the Apache License 2.0.
+See https://www.apache.org/licenses/LICENSE-2.0
+"""
 import torch
 from mmengine.model import BaseModule
 from .spconv import IS_SPCONV2_AVAILABLE

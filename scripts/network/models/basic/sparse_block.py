@@ -1,3 +1,4 @@
+# Copyright (c) OpenMMLab. All rights reserved.
 from assets.cuda.mmcv import build_conv_layer, build_norm_layer
 from torch import nn
 from spconv.pytorch import SparseModule, SparseSequential

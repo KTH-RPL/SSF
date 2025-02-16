@@ -157,7 +157,6 @@ class SimpleLinearDecoder(nn.Module):
             pointwise_batch_mask = voxel_batch_mask[[pc0_voxel2point_inds]]
             realpoints_batch_mask = torch.logical_and(pointwise_batch_mask, ~pc0_dummy_mask)
             if before_pseudoimages.size(0) > pc0_point_offsets.size(0):
-                print("it happened again!")
                 a = torch.zeros((before_pseudoimages.size(0), 3)).to(before_pseudoimages.device)
                 a[:pc0_point_offsets.size(0),:] = pc0_point_offsets
                 pc0_point_offsets = a

@@ -2,7 +2,7 @@
 # Created: 2023-1-26 16:38
 # Updated: 2024-07-15 22:08
 # Copyright (C) 2023-now, RPL, KTH Royal Institute of Technology
-# Author: Qingwen Zhang  (https://kin-zhang.github.io/)
+# Author: Qingwen Zhang  (https://kin-zhang.github.io/), Ajinkya Khoche (khoche@kth.se)
 # 
 # code gits: https://gist.github.com/Kin-Zhang/77e8aa77a998f1a4f7495357843f24ef
 # 
@@ -15,6 +15,7 @@
 # 2024-07-15 22:08(Qingwen): add func to save view file and the screen shot file for afterward check and animation. Need Open3d==0.18.0 version for saving func.
 # 2024-04-15 12:06(Qingwen): show a example json text. add hex_to_rgb, color_map_hex, color_map (for color points if needed)
 # 2024-01-27 0:41(Qingwen): update MyVisualizer class, reference from kiss-icp: https://github.com/PRBonn/kiss-icp/blob/main/python/kiss_icp/tools/visualizer.py
+# 2024-09-10 (Ajinkya): Add MyMultiVisualizer class to view multiple windows at once, create bev square for visualization.
 '''
 
 import open3d as o3d

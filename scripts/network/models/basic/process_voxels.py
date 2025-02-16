@@ -419,8 +419,12 @@ class DynamicPillarFeatureNet(PillarFeatureNet):
 
 
 class DynamicVFELayer(nn.Module):
-    """Replace the Voxel Feature Encoder layer in VFE layers.
+    """
+    Adapted from SST (https://github.com/tusen-ai/SST)
+    Licensed under the Apache License 2.0.
+    See https://www.apache.org/licenses/LICENSE-2.0
 
+    Replace the Voxel Feature Encoder layer in VFE layers.
     This layer has the same utility as VFELayer above
 
     Args:
@@ -459,7 +463,12 @@ class DynamicVFELayer(nn.Module):
 
 
 class DynamicVFE(nn.Module):
-    """Dynamic Voxel feature encoder used in DV-SECOND.
+    """
+    Adapted from SST (https://github.com/tusen-ai/SST)
+    Licensed under the Apache License 2.0.
+    See https://www.apache.org/licenses/LICENSE-2.0
+
+    Dynamic Voxel feature encoder used in DV-SECOND.
 
     It encodes features of voxels and their points. It could also fuse
     image feature into voxel features in a point-wise manner.
@@ -669,7 +678,11 @@ class DynamicVFE(nn.Module):
 
 
 class DynamicScatterVFE(DynamicVFE):
-    """ Same with DynamicVFE but use torch_scatter to avoid construct canvas in map_voxel_center_to_point.
+    """ 
+    Originally from SST (https://github.com/tusen-ai/SST)
+    Modified by Ajinkya Khoche for SSF (https://github.com/KTH-RPL/SSF)
+
+    Same with DynamicVFE but use torch_scatter to avoid construct canvas in map_voxel_center_to_point.
     The canvas is very memory-consuming when use tiny voxel size (5cm * 5cm * 5cm) in large 3D space.
     """
 

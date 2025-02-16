@@ -95,6 +95,28 @@ class PointPillarsScatter(nn.Module):
         return batch_canvas
 
 def scatter_v2(feat, coors, mode, return_inv=True, min_points=0, unq_inv=None, new_coors=None):
+    """
+    Adapted from SST (https://github.com/tusen-ai/SST)
+    Licensed under the Apache License 2.0.
+    See https://www.apache.org/licenses/LICENSE-2.0
+
+    Args:
+        feat (torch.Tensor): The feature tensor to be scattered.
+        coors (torch.Tensor): The coordinates tensor corresponding to the features.
+        mode (str): The reduction mode to apply. Options are 'avg' (alias for 'mean'), 'max', 'mean', and 'sum'.
+        return_inv (bool, optional): Whether to return the inverse indices. Default is True.
+        min_points (int, optional): Minimum number of points required to keep a coordinate. Default is 0.
+        unq_inv (torch.Tensor, optional): Precomputed unique inverse indices. Default is None.
+        new_coors (torch.Tensor, optional): Precomputed new coordinates. Default is None.
+    Returns:
+        tuple: A tuple containing:
+            - new_feat (torch.Tensor): The scattered feature tensor.
+            - new_coors (torch.Tensor): The new coordinates tensor.
+            - unq_inv (torch.Tensor, optional): The unique inverse indices tensor, if return_inv is True.
+    Raises:
+        AssertionError: If the size of feat and coors do not match.
+        NotImplementedError: If the mode is not one of 'max', 'mean', or 'sum'.
+    """
     assert feat.size(0) == coors.size(0)
     if mode == 'avg':
         mode = 'mean'

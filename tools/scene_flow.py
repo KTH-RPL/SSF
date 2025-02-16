@@ -1,13 +1,16 @@
 """
 # Created: 2023-11-29 21:22
 # Copyright (C) 2023-now, RPL, KTH Royal Institute of Technology
-# Author: Qingwen Zhang  (https://kin-zhang.github.io/)
+# Author: Qingwen Zhang  (https://kin-zhang.github.io/), Ajinkya Khoche (khoche@kth.se)
 #
 # This file is part of DeFlow (https://github.com/KTH-RPL/DeFlow).
 # If you find this repo helpful, please cite the respective publication as 
 # listed on the above website.
 # 
 # Description: view scene flow dataset after preprocess.
+
+# CHANGELOG:
+# 2024-09-10 (Ajinkya): Add vis_multiple(), to visualize multiple flow modes at once.
 """
 
 import numpy as np
@@ -68,6 +71,7 @@ def vis(
     start_id: int = -1,
     point_size: float = 2.0,
 ):
+    assert isinstance(flow_mode, str), "vis() needs a string as flow_mode"
     dataset = HDF5Data(data_dir, vis_name=flow_mode, flow_view=True)
     o3d_vis = MyVisualizer(view_file=VIEW_FILE, window_title=f"view {'ground truth flow' if flow_mode == 'flow' else f'{flow_mode} flow'}, `SPACE` start/stop")
 

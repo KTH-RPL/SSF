@@ -4,8 +4,9 @@
 # Copyright (C) 2024-now, RPL, KTH Royal Institute of Technology
 # Author: Ajinkya Khoche (khoche@kth.se)
 #
-# This work is licensed under the terms of the MIT license.
-# For a copy, see <https://opensource.org/licenses/MIT>.
+# This file is part of SSF (https://github.com/KTH-RPL/SSF).
+# If you find this repo helpful, please cite the respective publication as 
+# listed on the above website.
 """
 
 import torch.nn as nn

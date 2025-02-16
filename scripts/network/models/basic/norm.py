@@ -1,3 +1,4 @@
+# Copyright (c) OpenMMLab. All rights reserved.
 import torch
 from mmengine.registry import MODELS
 # from mmcv.runner import force_fp32
