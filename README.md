@@ -74,7 +74,18 @@ By default the script calls `vis()` which means single scene flow, and `flow_mod
 
 ---
 
-## **💡 Acknowledgements**  
+## **💡 Citation and Acknowledgements** 
+If SSF is useful for your research, please cite our paper using:
+
+```
+@article{khoche2025ssf,
+  title={SSF: Sparse Long-Range Scene Flow for Autonomous Driving},
+  author={Khoche, Ajinkya and Zhang, Qingwen and Sanchez, Laura Pereira and Asefaw, Aron and Mansouri, Sina Sharif and Jensfelt, Patric},
+  journal={arXiv preprint arXiv:2501.17821},
+  year={2025}
+}
+```
+
 Sincere thanks to:
 
 - 👩‍🔬 [Qingwen Zhang](https://kin-zhang.github.io/) for her work on [Seflow](https://github.com/KTH-RPL/SeFlow) and her help with SSF metric and manuscript revision. 
