@@ -163,5 +163,7 @@ class SSF(nn.Module):
             
             "pc1_valid_point_idxes": pc1_valid_point_idxes,
             "pc1_points_lst": pc1_points_lst,
+
+            'num_occupied_voxels': [processed_info['voxel_feats'].size(0)]
         }
         return model_res

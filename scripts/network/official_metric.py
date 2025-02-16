@@ -82,6 +82,8 @@ def evaluate_ssf(est_flow, rigid_flow, pc0, gt_flow, is_valid, pts_ids):
     
     # NOTE(Qingwen): no pose flow (ego motion) in v2 and ssf evaluation, we focus on other agent's flow.
     est_flow = est_flow[mask_eval, :] - rigid_flow
+    # NOTE(Ajinkya): set est_flow to zero (uncomment line below) to evaluate ego motion only.
+    # # est_flow = torch.zeros_like(est_flow).to(est_flow.device)
     gt_flow = gt_flow[mask_eval, :] - rigid_flow 
     is_valid = is_valid[mask_eval]
     pts_ids = pts_ids[mask_eval]
@@ -264,9 +266,11 @@ class OfficialMetrics:
         )
         for min_, max_ in list(zip(distance_split, distance_split[1:])):
             str_name = f"{int(min_)}-{int(max_)}" if max_ != np.inf else f"{int(min_)}-inf"
-            self.epe_ssf[str_name] = {"Static": [], "Dynamic": [], "NumPoints": 0}
+            self.epe_ssf[str_name] = {"Static": [], "Dynamic": [], "NumPointsStatic": 0, "NumPointsDynamic": 0}
+        
+        self.num_occupied_voxels = []
 
-    def step(self, epe_dict, bucket_dict, ssf_dict=None):
+    def step(self, epe_dict, bucket_dict, ssf_dict=None, num_occupied_voxels=-1):
         """
         This step function is used to store the results of **each frame**.
         """
@@ -292,6 +296,8 @@ class OfficialMetrics:
                     item_.avg_range,
                     item_.count,
                 )
+        
+        self.num_occupied_voxels.append(num_occupied_voxels) 
 
     def normalize(self):
         """
@@ -315,16 +321,23 @@ class OfficialMetrics:
         self.norm_flag = True
 
         # ssf evaluation
-        for dis_range_key in self.epe_ssf:
-            min_, max_ = dis_range_key.split("-")
-            min_, max_ = int(min_), int(max_) if max_ != "inf" else np.inf
-            for motion in ["Static", "Dynamic"]:
-                avg_epes, avg_diss, num_pts = self.distanceMatrix.get_class_entries(motion)
-                # print(avg_epe, avg_dis)
-                for avg_epe, avg_dis, num_pt in zip(avg_epes, avg_diss, num_pts):
-                    if max_ > avg_dis >= min_:
-                        self.epe_ssf[dis_range_key][motion] = avg_epe
-                        self.epe_ssf[dis_range_key]["NumPoints"] += num_pt
+        self.epe_ssf['Mean'] = {"Static": [], "Dynamic": [], "NumPointsStatic": np.nan, "NumPointsDynamic": np.nan}
+        
+        for motion in ["Static", "Dynamic"]:
+            avg_epes, avg_diss, num_pts = self.distanceMatrix.get_class_entries(motion)
+            # print(avg_epe, avg_dis)
+            for avg_epe, avg_dis, num_pt in zip(avg_epes, avg_diss, num_pts):
+                for dis_range_key in self.epe_ssf:
+                    if dis_range_key != 'Mean':
+                        min_, max_ = dis_range_key.split("-")
+                        min_, max_ = int(min_), int(max_) if max_ != "inf" else np.inf        
+                        if max_ > avg_dis >= min_:
+                            self.epe_ssf[dis_range_key][motion] = avg_epe
+                            self.epe_ssf[dis_range_key]["NumPoints"+motion] += num_pt
+            
+            self.epe_ssf['Mean'][motion] = np.nanmean(avg_epes)
+
+        self.mean_num_occupied_voxels = {'num_occupied_voxels': np.mean(self.num_occupied_voxels)}
 
     def print(self):
         if not self.norm_flag:
@@ -343,7 +356,7 @@ class OfficialMetrics:
 
         printed_data = []
         for key in self.epe_ssf:
-            printed_data.append([key, self.epe_ssf[key]['Static'], self.epe_ssf[key]['Dynamic'], self.epe_ssf[key]['NumPoints']])
+            printed_data.append([key, self.epe_ssf[key]['Static'], self.epe_ssf[key]['Dynamic'], self.epe_ssf[key]['NumPointsStatic'], self.epe_ssf[key]['NumPointsDynamic']])
         print("SSF Metric on Distance-based:")
-        print(tabulate(printed_data, headers=["Distance", "Static", "Dynamic", "NumPoints"], tablefmt='orgtbl'), "\n")
+        print(tabulate(printed_data, headers=["Distance", "Static", "Dynamic", "NumPointsStatic", "NumPointsDynamic"], tablefmt='orgtbl'), "\n")
     
