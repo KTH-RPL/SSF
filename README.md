@@ -1,6 +1,7 @@
 # **SSF: Sparse Long-Range Scene Flow for Autonomous Driving**  
 
-[![ArXiv](https://img.shields.io/badge/arXiv-2501.17821-blue.svg)](https://arxiv.org/abs/2501.17821)  
+[![ArXiv](https://img.shields.io/badge/arXiv-2501.17821-blue.svg)](https://arxiv.org/abs/2501.17821) [![poster](https://img.shields.io/badge/ICRA2025|Poster-6495ed?style=flat&logo=Shotcut&logoColor=wihte)](https://kth-my.sharepoint.com/:b:/g/personal/khoche_ug_kth_se/ESEgNSWDpU5OoM3L--CHDrkBrCvNBW4tikHWdvqXQoSkoQ?e=mHD0ta) 
+[![video](https://img.shields.io/badge/video-YouTube-FF0000?logo=youtube&logoColor=white)](https://youtu.be/ZPZ0RHsItKs?si=HVIjbL1xjD_3qyMX) 
 
 This repository contains the official implementation of **Sparse Scene Flow (SSF)**, a scalable and efficient approach to **long-range 3D scene flow estimation**. By leveraging **sparse convolutions**, SSF overcomes the computational challenges of existing methods, enabling **efficient scene flow estimation at distances beyond 50 meters**.  
 
